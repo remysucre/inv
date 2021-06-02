@@ -19,32 +19,40 @@ pub fn main() {
     rls.extend(init(&i));
 
     // initialize x and y
-    let mut r0 = Runner::default();
+    let mut r = Runner::default();
 
     for (v, _) in &i {
-        r0.egraph.add_expr(&v.parse().unwrap());
+        r.egraph.add_expr(&v.parse().unwrap());
     }
 
-    let e0 = r0.run(&rls).egraph;
+    let mut e = r.run(&rls).egraph;
 
-    // rename x => step_x, y => step_y in e0
-    let prev_e = Runner::default()
-        .with_egraph(e0.clone())
-        .run(&rn(&i))
-        .egraph;
+    for n in 1..5 {
+        // rename x => step_x, y => step_y in e0
+        let prev_e = Runner::default()
+            .with_egraph(e.clone())
+            .run(&rn(&i))
+            .egraph;
 
-    // loop once
-    let mut r1 = Runner::default().with_egraph(e0);
+        // loop once
+        let mut curr_r = Runner::default().with_egraph(e);
 
-    for (v, _) in &p {
-        r1.egraph.add_expr(&format!("step_{}", v).parse().unwrap());
+        for (v, _) in &p {
+            curr_r.egraph.add_expr(&format!("step_{}", v).parse().unwrap());
+        }
+
+        let curr_e = curr_r.run(&step(&p)).egraph;
+
+        let e_inter = intersect(&prev_e, &curr_e, ());
+
+        let e_inter = Runner::default()
+            .with_egraph(e_inter)
+            .run(&forget(&i))
+            .egraph;
+
+        println!("{}", e_inter.total_size());
+        e_inter.dot().to_png(format!("ast{}.png", n)).unwrap();
+
+        e = e_inter;
     }
-
-    let e1 = r1.run(&step(p)).egraph;
-
-    let e_inter = intersect(&prev_e, &e1, ());
-
-    println!("{}", e_inter.total_size());
-    e_inter.dot().to_png("ast.png").unwrap();
 }
-

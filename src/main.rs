@@ -20,6 +20,12 @@ use egg::{rewrite as rw, *};
 // loop { x = y + y; y = x + x; }
 // invariant: x = y
 
+// Note that invariant *discovery* differs from the standard
+// invariant *inference* in PL, since we don't ask for
+// a post-condition here.
+// In fact, there is no way to specify a post-condition,
+// since the loop runs forever.
+
 define_language! {
     pub enum Math {
         "+" = Add([Id; 2]),

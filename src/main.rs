@@ -2,6 +2,10 @@ use inv::{*, lang::*, inter::*};
 
 use egg::*;
 
+// x = 1; y = 1
+// loop { x = y + y; y = x + x }
+// invariant: x = y
+
 pub fn main() {
     // initial state
     let i = vec![

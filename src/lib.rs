@@ -4,18 +4,18 @@ use lang::*;
 
 use egg::*;
 
-pub fn init(defs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
+pub fn init(defs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     let mut rls = vec![];
     for (x, e) in defs {
         rls.push(
-            Rewrite::new(
+            egg::Rewrite::new(
                 format!("init-{}", x), format!("init-{}", x),
                 x.parse::<Pattern<Math>>().unwrap(),
                 e.parse::<Pattern<Math>>().unwrap(),
             ).unwrap()
         );
         rls.push(
-            Rewrite::new(
+            egg::Rewrite::new(
                 format!("init-{}-rev", x), format!("init-{}-rev", x),
                 e.parse::<Pattern<Math>>().unwrap(),
                 x.parse::<Pattern<Math>>().unwrap(),
@@ -25,18 +25,18 @@ pub fn init(defs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
     rls
 }
 
-pub fn step(defs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
+pub fn step(defs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     let mut rls = vec![];
     for (x, e) in defs {
         rls.push(
-            Rewrite::new(
+            egg::Rewrite::new(
                 format!("step-{}", x), format!("step-{}", x),
                 e.parse::<Pattern<Math>>().unwrap(),
                 format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
             ).unwrap()
         );
         rls.push(
-            Rewrite::new(
+            egg::Rewrite::new(
                 format!("step-{}-rev", x), format!("step-{}-rev", x),
                 format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
                 e.parse::<Pattern<Math>>().unwrap(),
@@ -46,11 +46,11 @@ pub fn step(defs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
     rls
 }
 
-pub fn rn(xs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
+pub fn rn(xs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     let mut rls = vec![];
     for (x, _) in xs {
         rls.push(
-            Rewrite::new(
+            egg::Rewrite::new(
                 format!("rn-{}", x), format!("rn-{}", x),
                 x.parse::<Pattern<Math>>().unwrap(),
                 Destroy {
@@ -63,13 +63,13 @@ pub fn rn(xs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
     rls
 }
 
-pub struct Destroy<A: Applier<Math, ()>> {
+pub struct Destroy<A: Applier<Math, ConstantFold>> {
     e: A,
     x: Math,
 }
 
-impl<A: Applier<Math, ()>> Applier<Math, ()> for Destroy<A> {
-    fn apply_one(&self, egraph: &mut EGraph<Math, ()>, eclass: Id, subst: &Subst) -> Vec<Id> {
+impl<A: Applier<Math, ConstantFold>> Applier<Math, ConstantFold> for Destroy<A> {
+    fn apply_one(&self, egraph: &mut lang::EGraph, eclass: Id, subst: &Subst) -> Vec<Id> {
         egraph[eclass].nodes.retain(|node| node != &self.x);
         self.e.apply_one(egraph, eclass, subst)
     }

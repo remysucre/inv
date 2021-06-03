@@ -53,7 +53,10 @@ pub fn rn(xs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
             Rewrite::new(
                 format!("rn-{}", x), format!("rn-{}", x),
                 x.parse::<Pattern<Math>>().unwrap(),
-                format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
+                Destroy {
+                    e: format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
+                    x: Math::Symbol(x.parse().unwrap()),
+                }
             ).unwrap()
         )
     }
@@ -62,27 +65,29 @@ pub fn rn(xs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
 
 pub struct Destroy<A: Applier<Math, ()>> {
     e: A,
+    x: Math,
 }
 
 impl<A: Applier<Math, ()>> Applier<Math, ()> for Destroy<A> {
     fn apply_one(&self, egraph: &mut EGraph<Math, ()>, eclass: Id, subst: &Subst) -> Vec<Id> {
-        egraph[eclass].nodes.clear();
+        egraph[eclass].nodes.retain(|node| node != &self.x);
         self.e.apply_one(egraph, eclass, subst)
     }
 }
 
-pub fn forget(xs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
-    let mut rls = vec![];
-    for (x, _) in xs {
-        rls.push(
-            Rewrite::new(
-                format!("rn-{}", x), format!("rn-{}", x),
-                x.parse::<Pattern<Math>>().unwrap(),
-                Destroy {
-                    e: "null".parse::<Pattern<Math>>().unwrap(),
-                }
-            ).unwrap()
-        )
-    }
-    rls
-}
+// pub fn forget(xs: &[(&str, &str)]) -> Vec<Rewrite<Math, ()>> {
+//     let mut rls = vec![];
+//     for (x, _) in xs {
+//         rls.push(
+//             Rewrite::new(
+//                 format!("rn-{}", x), format!("rn-{}", x),
+//                 x.parse::<Pattern<Math>>().unwrap(),
+//                 Destroy {
+//                     e: "null".parse::<Pattern<Math>>().unwrap(),
+//                     x: Math::Symbol(x.parse().unwrap()),
+//                 }
+//             ).unwrap()
+//         )
+//     }
+//     rls
+// }

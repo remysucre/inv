@@ -47,12 +47,8 @@ pub fn main() {
 
         let curr_e = curr_r.run(&step(&p)).egraph;
 
+        // find common equalities
         let e_inter = intersect(&prev_e, &curr_e, ());
-
-        let e_inter = Runner::default()
-            .with_egraph(e_inter)
-            .run(&forget(&i))
-            .egraph;
 
         println!("{}", e_inter.total_size());
         e_inter.dot().to_png(format!("ast{}.png", n)).unwrap();

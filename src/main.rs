@@ -48,7 +48,10 @@ pub fn main() {
             .run(&step(&p))
             .egraph;
 
-        e = intersect(&e, &rename(curr_e, &vs), ConstantFold);
+        let rn_e = &rename(curr_e, &vs);
+        rn_e.dot().to_png(format!("step_{}.5.png", n - 1)).unwrap();
+
+        e = intersect(&e, &rn_e, ConstantFold);
 
         e.dot().to_png(format!("step_{}.png", n)).unwrap();
     }

@@ -11,14 +11,14 @@ pub fn init(defs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     for (x, e) in defs {
         rls.push(
             egg::Rewrite::new(
-                format!("init-{}", x), format!("init-{}", x),
+                format!("init-{}", x), // format!("init-{}", x),
                 x.parse::<Pattern<Math>>().unwrap(),
                 e.parse::<Pattern<Math>>().unwrap(),
             ).unwrap()
         );
         rls.push(
             egg::Rewrite::new(
-                format!("init-{}-rev", x), format!("init-{}-rev", x),
+                format!("init-{}-rev", x), // format!("init-{}-rev", x),
                 e.parse::<Pattern<Math>>().unwrap(),
                 x.parse::<Pattern<Math>>().unwrap(),
             ).unwrap()
@@ -32,14 +32,14 @@ pub fn step(defs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     for (x, e) in defs {
         rls.push(
             egg::Rewrite::new(
-                format!("step-{}", x), format!("step-{}", x),
+                format!("step-{}", x), // format!("step-{}", x),
                 e.parse::<Pattern<Math>>().unwrap(),
                 format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
             ).unwrap()
         );
         rls.push(
             egg::Rewrite::new(
-                format!("step-{}-rev", x), format!("step-{}-rev", x),
+                format!("step-{}-rev", x), // format!("step-{}-rev", x),
                 format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
                 e.parse::<Pattern<Math>>().unwrap(),
             ).unwrap()
@@ -49,9 +49,10 @@ pub fn step(defs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
 }
 
 pub fn rename(e: lang::EGraph, vs: &HashSet<&str>) -> lang::EGraph {
-    let mut g = egg::EGraph::new(lang::ConstantFold);
+    let mut g = egg::EGraph::new(());
     let mut e_g = HashMap::new();
     loop {
+        println!("loopin");
         let mut g_changed = false;
         for c in e.classes() {
             for n in &c.nodes {
@@ -104,7 +105,7 @@ pub fn rn(xs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     for (x, _) in xs {
         rls.push(
             egg::Rewrite::new(
-                format!("rn-{}", x), format!("rn-{}", x),
+                format!("rn-{}", x), // format!("rn-{}", x),
                 x.parse::<Pattern<Math>>().unwrap(),
                 Destroy {
                     e: format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
@@ -138,7 +139,7 @@ pub fn rn_step(xs: &[(&str, &str)]) -> Vec<lang::Rewrite> {
     for (x, _) in xs {
         rls.push(
             egg::Rewrite::new(
-                format!("rns-{}", x), format!("rns-{}", x),
+                format!("rns-{}", x), // format!("rns-{}", x),
                 format!("step_{}", x).parse::<Pattern<Math>>().unwrap(),
                 Destroy {
                     e: x.parse::<Pattern<Math>>().unwrap(),

@@ -5,13 +5,18 @@ use egg::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-// init: tc = 0
-// loop: tc = e + e * tc
-// inv:  tc * e = e * tc
+// init: x = 1; y = 1
+// loop: x = y + y; y = x + x
+// inv:  x = y
 
 pub fn main() {
+    // declare variables
+    let vs: HashSet<&str> = HashSet::from_iter(
+        vec!["x", "y"].into_iter()
+    );
+
     // initial state
-    let i = vec![
+    let ini = vec![
         ("x", "1"),
         ("y", "1"),
     ];
@@ -22,40 +27,29 @@ pub fn main() {
         ("y", "(+ x x)"),
     ];
 
-    let vs: HashSet<&str> = HashSet::from_iter(
-        vec!["x", "y"].into_iter()
-    );
-
+    // math axioms and initialization
     let mut rls = rules();
-    rls.extend(init(&i));
+    rls.extend(init(&ini));
 
-    // initialize x and y
-    let mut r = Runner::default();
+    let mut e = Runner::default()
+        .with_expr(&"(+ x x)".parse().unwrap())
+        .with_expr(&"(+ y y)".parse().unwrap())
+        .run(&rls)
+        .egraph;
 
-    for (v, _) in &i {
-        r.egraph.add_expr(&v.parse().unwrap());
-        r.egraph.add_expr(&"(+ x x)".parse().unwrap());
-        r.egraph.add_expr(&"(+ y y)".parse().unwrap());
-    }
-
-    let mut e = r.run(&rls).egraph;
+    e.dot().to_png("init.png").unwrap();
 
     for n in 1..5 {
 
-        // loop once
-        let mut curr_r = Runner::default().with_egraph(e.clone());
+        let curr_e = Runner::default()
+            .with_egraph(e.clone())
+            .with_expr(&"(+ step_x step_x)".parse().unwrap())
+            .with_expr(&"(+ step_y step_y)".parse().unwrap())
+            .run(&step(&p))
+            .egraph;
 
-        for (v, _) in &p {
-            curr_r.egraph.add_expr(&format!("step_{}", v).parse().unwrap());
-            curr_r.egraph.add_expr(&"(+ step_x step_x)".parse().unwrap());
-            curr_r.egraph.add_expr(&"(+ step_y step_y)".parse().unwrap());
-        }
+        e = intersect(&e, &rename(curr_e, &vs), ConstantFold);
 
-        let curr_e = rename(curr_r.run(&step(&p)).egraph, &vs);
-
-        e = intersect(&e, &curr_e, ConstantFold);
-
-        println!("{}", e.total_size());
-        e.dot().to_png(format!("ast{}.png", n)).unwrap();
+        e.dot().to_png(format!("step_{}.png", n)).unwrap();
     }
 }

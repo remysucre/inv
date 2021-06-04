@@ -42,7 +42,7 @@ impl Analysis<Math> for ConstantFold {
             let added = egraph.add(Math::Num(c));
             let (id, _did_something) = egraph.union(id, added);
             // to not prune, comment this out
-            egraph[id].nodes.retain(|n| n.is_leaf());
+            // egraph[id].nodes.retain(|n| n.is_leaf());
 
             assert!(
                 !egraph[id].nodes.is_empty(),

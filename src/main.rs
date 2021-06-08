@@ -47,10 +47,8 @@ pub fn main() {
         .run(&rls)
         .egraph;
 
-    println!("{}", e.total_size());
-    e.dot().to_png("init.png").unwrap();
+    // e.dot().to_png("init.png").unwrap();
 
-    println!("yo");
     for n in 1..5 {
 
         let mut rls = rules();
@@ -76,12 +74,11 @@ pub fn main() {
             .egraph;
 
         let rn_e = &rename(curr_e, &vs);
-        println!("done");
-        rn_e.dot().to_png(format!("step_{}.5.png", n - 1)).unwrap();
+        // rn_e.dot().to_png(format!("step_{}.5.png", n - 1)).unwrap();
 
         e = intersect(&e, &rn_e, ());
-        println!("inter");
 
-        e.dot().to_png(format!("step_{}.png", n)).unwrap();
+        // e.dot().to_png(format!("step_{}.png", n)).unwrap();
     }
+    e.dot().to_png("inv.png").unwrap();
 }

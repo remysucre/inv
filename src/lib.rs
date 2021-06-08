@@ -52,7 +52,6 @@ pub fn rename(e: lang::EGraph, vs: &HashSet<&str>) -> lang::EGraph {
     let mut g = egg::EGraph::new(());
     let mut e_g = HashMap::new();
     loop {
-        println!("loopin");
         let mut g_changed = false;
         for c in e.classes() {
             for n in &c.nodes {

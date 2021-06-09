@@ -9,6 +9,7 @@ define_language! {
     pub enum Math {
         "+" = Add([Id; 2]),
         "*" = Mul([Id; 2]),
+        "." = PMul([Id; 2]),
         Num(i32),
         Symbol(Symbol),
         Other(Symbol, Vec<Id>),
@@ -69,10 +70,17 @@ pub fn rules() -> Vec<Rewrite> {
         rw!("add-0"; "(+ ?x 0)" <=> "?x"),
         // rw!("mul-x-1"; "(* ?x 1)" <=> "?x"),
         // rw!("mul-1-x"; "(* 1 ?x)" <=> "?x"),
+        rw!("commute-pmul"; "(. ?x ?y)"      <=> "(. ?y ?x)"),
+        rw!("assoc-pmul"; "(. (. ?x ?y) ?z)" <=> "(. ?x (. ?y ?z))"),
+        rw!("add-pmul-dist"; "(. ?x (+ ?y ?z))" <=> "(+ (. ?x ?y) (. ?x ?z))"),
+
+        rw!("tc-trans"; "(* e (. t ?x))" <=> "(. t (* e (. t ?x)))"),
+        rw!("tc-e"; "e" <=> "(. t e)"),
     ].concat();
     rls.extend(vec![
         rw!("mul-x-0"; "(* ?x 0)" => "0"),
         rw!("mul-0-x"; "(* 0 ?x)" => "0"),
+        rw!("pmul-x-0"; "(. ?x 0)" => "0"),
     ]);
     rls
 }

@@ -5,9 +5,26 @@ use egg::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-// init: tc = 0;
-// loop: tc = tc . e
-// inv:  tc . e = e . tc
+// init: tc(x,y) = 0(x,y);
+// loop: tc(x,y) = sum z . tc(x,z) * e(z,y)
+// inv:  tc(x,z) * e(z,y) = e(x,z) * tc(z,y)
+
+// sum z . tc(x,z) * e(z,w)
+// sum z . (sum y . tc(x,y) * e(y,z)) * e(z,w)
+// sum y z . tc(x,y) * e(y,z) * e(z,w)
+// sum y z . e(x,y) * tc(y,z) * e(z,w)
+//
+// sum y . e(x,y) * tc(y,z)
+// sum y . e(x,y) * (sum z . tc(y,z) * e(z,w))
+// sum y z . e(x,y) * tc(y,z) * e(z,w)
+
+// Constraints:
+// e = t * e
+// e (t * x) = t * e (t * x)
+//
+// init: tc = 0
+// loop: tc = e + e tc
+// inv: tc = t * tc
 
 pub fn main() {
     // declare variables
@@ -22,7 +39,7 @@ pub fn main() {
 
     // loop body
     let p = vec![
-        ("tc", "(+ e (* tc e))"),
+        ("tc", "(+ e (* e tc))"),
     ];
 
     // math axioms and initialization
@@ -30,6 +47,8 @@ pub fn main() {
     rls.extend(init(&ini));
 
     let mut e = Runner::default()
+        .with_expr(&"(. t tc)".parse().unwrap())
+        .with_expr(&"(+ e (* (. tc t) e))".parse().unwrap())
         .with_expr(&"(+ e (* tc e))".parse().unwrap())
         .with_expr(&"(+ e (* e tc))".parse().unwrap())
         .with_scheduler(
@@ -47,15 +66,19 @@ pub fn main() {
         .run(&rls)
         .egraph;
 
+    // println!("size: {}", e.total_size());
     // e.dot().to_png("init.png").unwrap();
 
-    for n in 1..5 {
+    for _n in 1..5 {
 
         let mut rls = rules();
         rls.extend(step(&p));
 
         let curr_e = Runner::default()
             .with_egraph(e.clone())
+            .with_expr(&"(. step_tc t)".parse().unwrap())
+            // E + (E (TC * T)) * T
+            .with_expr(&"(+ e (. t (* e (. tc t))))".parse().unwrap())
             .with_expr(&"(+ e (* step_tc e))".parse().unwrap())
             .with_expr(&"(+ e (* e step_tc))".parse().unwrap())
             .with_scheduler(
@@ -81,4 +104,5 @@ pub fn main() {
         // e.dot().to_png(format!("step_{}.png", n)).unwrap();
     }
     e.dot().to_png("inv.png").unwrap();
+    // println!("{}",e.total_size());
 }

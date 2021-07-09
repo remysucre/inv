@@ -103,6 +103,6 @@ pub fn main() {
 
         // e.dot().to_png(format!("step_{}.png", n)).unwrap();
     }
-    e.dot().to_png("inv.png").unwrap();
-    // println!("{}",e.total_size());
+    // e.dot().to_png("inv.png").unwrap();
+    println!("{}",e.total_size());
 }
